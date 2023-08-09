@@ -26,11 +26,11 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @return
      */
     public Employee login(EmployeeLoginDTO employeeLoginDTO) {
-        String username = employeeLoginDTO.getUsername();
+        String username = employeeLoginDTO.getUsername();  //从员工登录DTO中获得用户名和密码
         String password = employeeLoginDTO.getPassword();
 
         //1、根据用户名查询数据库中的数据
-        Employee employee = employeeMapper.getByUsername(username);
+        Employee employee = employeeMapper.getByUsername(username);  //调用DAO层对象查询数据库
 
         //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
         if (employee == null) {
@@ -39,7 +39,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         //密码比对
-        // TODO 后期需要进行md5加密，然后再进行比对
+        password = DigestUtils.md5DigestAsHex(password.getBytes());  //使用Spring自带的DigestUtils对密码进行MD5加密
+
         if (!password.equals(employee.getPassword())) {
             //密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
