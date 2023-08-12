@@ -112,4 +112,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         //封装查询结果为PageResult并返回
         return new PageResult(page.getTotal(), page.getResult());
     }
+
+    /**
+     * 启用或禁用员工账号
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        //update employee set status=? where id=?
+
+        //使用构造器构造employee对象
+        Employee employee = Employee.builder()
+                .id(id)
+                .status(status)
+                .build();
+        //调用通用的update方法修改status
+        employeeMapper.update(employee);
+    }
 }
