@@ -120,7 +120,7 @@ public class EmployeeController {
      * @param id
      * @return
      */
-    @PostMapping("/{status}")
+    @PostMapping("/status/{status}")
     @ApiOperation("启用禁用员工账号")
     public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("启用禁用员工账号：id={},status={}", id, status);
