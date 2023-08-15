@@ -85,14 +85,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPassword(PasswordConstant.DEFAULT_PASSWORD);
 
         //设置当前记录的创建时间和修改时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
 
         //设置当前记录的创建人和修改人id
-        Long empId = BaseContext.getCurrentId();  //从context中获取当前登录的员工id
-        employee.setCreateUser(empId);
-        employee.setUpdateUser(empId);
-        BaseContext.removeCurrentId();  //使用完毕后移除该id以防止内存泄露
+//        Long empId = BaseContext.getCurrentId();  //从context中获取当前登录的员工id
+//        employee.setCreateUser(empId);
+//        employee.setUpdateUser(empId);
+//        BaseContext.removeCurrentId();  //使用完毕后移除该id以防止内存泄露
 
         //调用持久层插入数据
         employeeMapper.insert(employee);
@@ -154,8 +154,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
         //设置必要的值
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+//        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setUpdateUser(BaseContext.getCurrentId());
         //调用DAO层修改
         employeeMapper.update(employee);
     }
