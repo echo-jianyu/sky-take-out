@@ -22,6 +22,7 @@ import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,7 +66,7 @@ public class DishServiceImpl implements DishService {
 
     }
 
-    /***
+    /**
      * 菜品分页查询
      * @param dishPageQueryDTO
      * @return
@@ -112,5 +113,47 @@ public class DishServiceImpl implements DishService {
             dishFlavorMapper.deleteByDishId(dishId);
         });
 
+    }
+
+    /**
+     * 根据id查询菜品
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        //根据id查询dish
+        Dish dish = dishMapper.getById(id);
+        //根据dishId查询dish_flavor表
+        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);
+        //封装为DishVO对象返回
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        //设置菜品口味
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+    }
+
+    /**
+     * 更新菜品
+     * @param dishDTO
+     */
+    @Override
+    @Transactional
+    public void updateWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        //根据id更新dish表中对应的数据
+        dishMapper.update(dish);
+
+        //直接删除菜品对应的口味数据
+        dishFlavorMapper.deleteByDishId(dishDTO.getId());
+
+        //重新往dish_flavor表插入口味数据
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        flavors.forEach(dishFlavor -> {
+            dishFlavor.setDishId(dishDTO.getId());
+        });
+        dishFlavorMapper.insertBatch(flavors);
     }
 }
