@@ -30,7 +30,6 @@ public class AutoFillAspect {
     @Pointcut("execution(* com.sky.mapper.*.*(..)) && @annotation(com.sky.annotation.AutoFill) ")  //切点配置在mapper包下的所有类所有方法下，但必须是有@AutoFill注解的方法
     public void autoFillPointCut() {
     }
-    //她站起来了一会，我回头去看她，但她似乎丝毫不在意我，根本就没有注意到我。然后她拿了水杯，抽了两张纸出去了。
 
     /**
      * 前置通知，在通知中进行公共字段的赋值
