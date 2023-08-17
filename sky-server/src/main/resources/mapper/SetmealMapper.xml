@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.SetmealMapper">
+
+    <!--错误的SQL语句-->
+<!--    <insert id="insert" useGeneratedKeys="true" keyProperty="id">-->
+<!--        insert into setmeal(category_id, name, price, description, image, create_time, update_time, create_user, update_user)-->
+<!--        values (category_id=#{categoryId}, name=#{name}, price=#{price}, description=#{description}, image=#{image},-->
+<!--                create_time=#{createTime}, update_time=#{updateTime}, create_user=#{createUser}, update_user=#{updateUser})-->
+<!--    </insert>-->
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into setmeal(category_id, name, price, description, image, create_time, update_time, create_user, update_user)
+        values (#{categoryId}, #{name}, #{price}, #{description}, #{image},
+                #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
+    </insert>
+</mapper>

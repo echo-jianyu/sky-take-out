@@ -33,4 +33,10 @@ public class SetmealDTO implements Serializable {
     //套餐菜品关系
     private List<SetmealDish> setmealDishes = new ArrayList<>();
 
+//    private String code;
+//
+//    private List dishList;
+//
+//    private Long idType;
+
 }
