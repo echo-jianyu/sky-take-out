@@ -10,6 +10,7 @@ import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface SetmealMapper {
@@ -42,7 +43,7 @@ public interface SetmealMapper {
      * @return
      */
     @Select("select * from setmeal where id=#{setmealId}")
-    Dish getById(Long setmealId);
+    Setmeal getById(Long setmealId);
 
     /**
      * 根据id删除套餐
@@ -50,4 +51,11 @@ public interface SetmealMapper {
      */
     @Delete("delete from setmeal where id=#{setmealId}")
     void deleteById(Long setmealId);
+
+    /**
+     * 更新套餐
+     * @param setmeal
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmeal);
 }

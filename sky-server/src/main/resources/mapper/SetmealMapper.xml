@@ -16,6 +16,17 @@
                 #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
 
+    <update id="update" >
+        update setmeal
+        <set>
+            <if test="categoryId != null">category_id=#{categoryId},</if>
+            <if test="name != null">name=#{name},</if>
+            <if test="price != null">price=#{price},</if>
+            <if test="description != null">description=#{description},</if>
+            <if test="image != null">image=#{image},</if>
+        </set>
+            where id=#{id}
+    </update>
 
     <!--查询setmeal表，同时查询分类表获得分类名称-->
     <select id="pageQuery" resultType="com.sky.vo.SetmealVO">
