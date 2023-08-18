@@ -15,4 +15,24 @@
         values (#{categoryId}, #{name}, #{price}, #{description}, #{image},
                 #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
+
+
+    <!--查询setmeal表，同时查询分类表获得分类名称-->
+    <select id="pageQuery" resultType="com.sky.vo.SetmealVO">
+        select s.*, c.name category_name
+        from setmeal s
+        left outer join category c
+        on s.category_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                and s.name like concat('%', #{name}, '%')
+            </if>
+            <if test="categoryId != null">
+                and s.category_id=#{categoryId}
+            </if>
+            <if test="status != null">
+                and s.status=#{status}
+            </if>
+        </where>
+    </select>
 </mapper>
