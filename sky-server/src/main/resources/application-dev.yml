@@ -10,6 +10,12 @@ sky:
   #阿里云对象存储参数配置
   alioss:
     endpoint: oss-cn-guangzhou.aliyuncs.com
-    access-key-id: LTAI5tEMi6JpEs1GwjJaGYVj
-    access-key-secret: cO4oKyyQZqmfjwPA19YUwsFq6z8kem
+    access-key-id: LTAI5tCMV7UPmzp3ZsuTdYUx
+    access-key-secret: IFjQh75HdN4CPSMGiSY3bzrEOElsBu
     bucket-name: jianyu-sky-take-out
+    #redis数据源配置
+  redis:
+    host: localhost
+    port: 6379
+    password: 123456
+    database: 10

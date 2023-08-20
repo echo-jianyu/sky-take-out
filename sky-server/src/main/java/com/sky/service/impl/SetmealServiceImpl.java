@@ -124,9 +124,6 @@ public class SetmealServiceImpl implements SetmealService {
     /**
      * 更新套餐
      * @param setmealDTO
-     * 今天我已经心满意足了，尽管没有什么波澜,我们的关系也没能进一步，但是
-     * 最起码可以确定她并没有讨厌我，没有刻意地避开我，我们之间依然保持着热情，即使她对我只是朋友的热情。
-     * 这一天是有遗憾的，那就是尽管我们断断续续地可能聊了一个小时，但还是没能聊到那些深入的话题。
      */
     @PutMapping
     @ApiOperation("更新套餐")
