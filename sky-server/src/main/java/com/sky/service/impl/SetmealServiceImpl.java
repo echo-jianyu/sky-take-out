@@ -71,7 +71,7 @@ public class SetmealServiceImpl implements SetmealService {
         PageHelper.startPage(setmealPageQueryDTO.getPage(), setmealPageQueryDTO.getPageSize());
         //分页查询
         Page<SetmealVO> page = setmealMapper.pageQuery(setmealPageQueryDTO);
-        log.debug("菜品分页查询结果：{}", page.getResult());
+//        log.debug("菜品分页查询结果：{}", page.getResult());
         return new PageResult(page.getTotal(), page.getResult());
     }
 
