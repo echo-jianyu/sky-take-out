@@ -70,4 +70,11 @@
         </where>
         order by order_time desc
     </select>
+    <select id="getById" resultType="com.sky.entity.Orders">
+        select o.*, a.detail address
+        from orders o
+                 left outer join address_book a
+                                 on o.address_book_id = a.id
+        where o.id = #{id}
+    </select>
 </mapper>
