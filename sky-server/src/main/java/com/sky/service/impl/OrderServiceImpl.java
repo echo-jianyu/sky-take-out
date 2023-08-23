@@ -1,8 +1,11 @@
 package com.sky.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.*;
@@ -10,12 +13,16 @@ import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
+import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -145,7 +153,6 @@ public class OrderServiceImpl implements OrderService {
         // 根据订单号查询订单
         Orders ordersDB = orderMapper.getByNumber(outTradeNo);
 
-        // 根据订单id更新订单的状态、支付方式、支付状态、结账时间
         Orders orders = Orders.builder()
                 .id(ordersDB.getId())
                 .status(Orders.TO_BE_CONFIRMED)
@@ -160,5 +167,47 @@ public class OrderServiceImpl implements OrderService {
         orders1.setCheckoutTime(LocalDateTime.now());
 
         orderMapper.update(orders);
+    }
+
+
+    /**
+     * 查询历史订单
+     * @param page
+     * @param pageSize
+     * @param status
+     * @return
+     */
+    @Override
+    public PageResult pageQuery4User(Integer page, Integer pageSize, Integer status) {
+        PageHelper.startPage(page, pageSize);
+        //条件分页查询
+        //构建DTO对象
+        OrdersPageQueryDTO ordersPageQueryDTO = OrdersPageQueryDTO.builder()
+                .userId(BaseContext.getCurrentId())
+                .status(status)
+                .build();
+        //查询
+        Page<Orders> ordersPage = orderMapper.pageQuery(ordersPageQueryDTO);
+        //构建返回VO对象
+        List<OrderVO> list = new ArrayList<>();
+        //查询所有的历史订单明细
+        if(ordersPage != null && ordersPage.size() > 0){
+            for (Orders orders : ordersPage) {
+                //查询每个订单的详细信息
+                List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
+                OrderVO orderVO = new OrderVO();
+                //将order信息拷贝给VO对象
+                log.info("copyProperties前：orders={}", orders);
+                log.info("copyProperties前：orderVO={}", orderVO);
+                BeanUtils.copyProperties(orders, orderVO);
+                log.info("copyProperties后：orders={}", orders);
+                log.info("copyProperties后：orderVO={}", orderVO);
+                //将订单详细信息放进OrderVO中
+                orderVO.setOrderDetailList(orderDetailList);
+                //将构建好的VO对象放到列表中
+                list.add(orderVO);
+            }
+        }
+        return new PageResult(ordersPage.getTotal(), list);
     }
 }
