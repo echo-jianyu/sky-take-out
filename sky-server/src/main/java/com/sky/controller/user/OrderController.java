@@ -81,8 +81,36 @@ public class OrderController {
     public Result<OrderVO> details(@PathVariable Long id){
         log.info("查询订单详细信息：{}", id);
         OrderVO orderVO = orderService.detail(id);
-        log.info("订单详细信息：{}", orderVO);
         return Result.success(orderVO);
     }
+
+    /**
+     * 取消订单
+     * @param id
+     * @return
+     */
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("取消订单")
+    public Result cencel(@PathVariable Long id) throws Exception {
+        log.info("取消订单：{}", id);
+        orderService.cencel(id);
+        return Result.success();
+    }
+
+    /**
+     * 再来一单
+     * @param id
+     * @return
+     */
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("再来一单")
+    public Result repetition(@PathVariable Long id){
+        log.info("再来一单：{}", id);
+        orderService.repetition(id);
+        return Result.success();
+    }
+
+
+
 
 }

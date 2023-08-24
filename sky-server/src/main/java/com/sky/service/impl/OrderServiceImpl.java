@@ -172,6 +172,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 查询历史订单
+     *
      * @param page
      * @param pageSize
      * @param status
@@ -191,17 +192,17 @@ public class OrderServiceImpl implements OrderService {
         //构建返回VO对象
         List<OrderVO> list = new ArrayList<>();
         //查询所有的历史订单明细
-        if(ordersPage != null && ordersPage.size() > 0){
+        if (ordersPage != null && ordersPage.size() > 0) {
             for (Orders orders : ordersPage) {
                 //查询每个订单的详细信息
                 List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
                 OrderVO orderVO = new OrderVO();
                 //将order信息拷贝给VO对象
-                log.info("copyProperties前：orders={}", orders);
-                log.info("copyProperties前：orderVO={}", orderVO);
+//                log.info("copyProperties前：orders={}", orders);
+//                log.info("copyProperties前：orderVO={}", orderVO);
                 BeanUtils.copyProperties(orders, orderVO);
-                log.info("copyProperties后：orders={}", orders);
-                log.info("copyProperties后：orderVO={}", orderVO);
+//                log.info("copyProperties后：orders={}", orders);
+//                log.info("copyProperties后：orderVO={}", orderVO);
                 //将订单详细信息放进OrderVO中
                 orderVO.setOrderDetailList(orderDetailList);
                 //将构建好的VO对象放到列表中
@@ -213,6 +214,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 查询订单详细信息
+     *
      * @param id
      * @return
      */
@@ -229,5 +231,76 @@ public class OrderServiceImpl implements OrderService {
         orderVO.setOrderDetailList(orderDetailList);
         //返回OrderVO
         return orderVO;
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param id
+     */
+    @Override
+    public void cencel(Long id) throws Exception {
+        //根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+        //订单不存在
+        if (ordersDB == null) {
+            //抛出异常
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        //根据订单状态指向不同处置  //订单状态： 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        if (ordersDB.getStatus() > 2) {
+            //抛出异常
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        //正常取消订单
+        Orders orders = new Orders();
+        orders.setId(ordersDB.getId());
+        //订单处于“待接单”状态，需要进行退款
+        if (Orders.TO_BE_CONFIRMED.equals(ordersDB.getStatus())) {
+            //调用微信支付退款接口
+            //跳过退款
+//            weChatPayUtil.refund(
+//                    ordersDB.getNumber(),  //商户订单号
+//                    ordersDB.getNumber(),  //商户退款单号
+//                    new BigDecimal(0.01),  //退款金额
+//                    new BigDecimal(0.01)  //原订单金额
+//            );
+            orders.setPayStatus(Orders.REFUND);
+        }
+
+        //将订单设为已取消状态，设置取消原因、取消时间
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("用户取消");
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 再来一单
+     *
+     * @param id
+     */
+    @Override
+    public void repetition(Long id) {
+        //根据orderId查询当前订单的详细信息
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(id);
+        //创建ShoppingCart列表存放要加入购物车的数据
+        List<ShoppingCart> shoppingCartList = new ArrayList<>();
+        //遍历订单的每个商品
+        orderDetailList.forEach(orderDetail -> {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            //将订单详细信息复制到购物车对象
+            BeanUtils.copyProperties(orderDetail, shoppingCart, "id");
+            //设置userId、创建时间
+            shoppingCart.setUserId(BaseContext.getCurrentId());
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            //插入到购物车列表中
+            shoppingCartList.add(shoppingCart);
+        });
+        //插入数据库
+        log.info("购物车内容：{}", shoppingCartList);
+        shoppingCartMapper.insertBatch(shoppingCartList);
+
     }
 }

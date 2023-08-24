@@ -45,4 +45,16 @@ public interface OrderService {
      * @return
      */
     OrderVO detail(Long id);
+
+    /**
+     * 取消订单
+     * @param id
+     */
+    void cencel(Long id) throws Exception;
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    void repetition(Long id);
 }
