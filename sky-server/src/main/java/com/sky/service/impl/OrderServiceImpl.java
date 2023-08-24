@@ -17,6 +17,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
@@ -341,5 +342,25 @@ public class OrderServiceImpl implements OrderService {
         });
 
         return new PageResult(ordersList.getTotal(), orderVOList);
+    }
+
+    /**
+     * 各个订单状态数量统计
+     * @return
+     */
+    @Override
+    public OrderStatisticsVO statistics() {
+        //查询待接单、待派送、派送中订单数量
+        Integer toBeConfirmedCount = orderMapper.countStatus(Orders.TO_BE_CONFIRMED);
+        Integer confirmedCount = orderMapper.countStatus(Orders.CONFIRMED);
+        Integer deliveryInProgressCount = orderMapper.countStatus(Orders.DELIVERY_IN_PROGRESS);
+
+        //创建返回对象
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setToBeConfirmed(toBeConfirmedCount);
+        orderStatisticsVO.setConfirmed(confirmedCount);
+        orderStatisticsVO.setDeliveryInProgress(deliveryInProgressCount);
+
+        return orderStatisticsVO;
     }
 }
