@@ -1,8 +1,10 @@
 package com.sky.controller.admin;
 
 
+import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.OrdersRejectionDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
@@ -44,7 +46,7 @@ public class OrderController {
     @ApiOperation("各个订单状态数量统计")
     public Result<OrderStatisticsVO> statistics(){
         OrderStatisticsVO orderStatisticsVO = orderService.statistics();
-        log.info("查查询待接单、待派送、派送中订单数量：{}", orderStatisticsVO);
+        log.info("查询待接单、待派送、派送中订单数量：{}", orderStatisticsVO);
         return Result.success(orderStatisticsVO);
     }
 
@@ -73,5 +75,20 @@ public class OrderController {
         orderService.confirm(ordersConfirmDTO);
         return Result.success();
     }
+
+    /**
+     * 拒单
+     * @param ordersRejectionDTO
+     * @return
+     */
+    @PutMapping("/rejection")
+    @ApiOperation("拒单")
+    public Result rejection(@RequestBody OrdersRejectionDTO ordersRejectionDTO){
+        log.info("拒单：{}", ordersRejectionDTO);
+        orderService.rejection(ordersRejectionDTO);
+        return Result.success();
+    }
+
+
 
 }
