@@ -303,4 +303,43 @@ public class OrderServiceImpl implements OrderService {
         shoppingCartMapper.insertBatch(shoppingCartList);
 
     }
+
+    /**
+     * 订单搜索
+     *
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        //开启分页
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        //执行条件查询
+        Page<Orders> ordersList = orderMapper.pageQuery(ordersPageQueryDTO);
+
+        //创建返回VO对象列表
+        List<OrderVO> orderVOList = new ArrayList<>();
+        ordersList.forEach(orders -> {
+            //将Orders对象转换为VO对象
+            OrderVO orderVO = new OrderVO();
+            BeanUtils.copyProperties(orders, orderVO);
+            //查询关联菜品、套餐名称，并拼接成字符串
+            List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
+            String dishesName = new String();
+            for (OrderDetail orderDetail : orderDetailList) {
+                dishesName += orderDetail.getName();  //拼接名称
+                dishesName += "*";
+                dishesName += orderDetail.getNumber().toString();  //拼接数量
+                dishesName += ", ";
+            }
+            dishesName = dishesName.substring(0, dishesName.length() - 2);  //去掉最后的“, "
+            //设置菜品名称
+            orderVO.setOrderDishes(dishesName);
+
+            //放入list中
+            orderVOList.add(orderVO);
+        });
+
+        return new PageResult(ordersList.getTotal(), orderVOList);
+    }
 }
