@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -161,11 +162,11 @@ public class OrderServiceImpl implements OrderService {
                 .checkoutTime(LocalDateTime.now())
                 .build();
 
-        Orders orders1 = new Orders();
-        orders1.setId(ordersDB.getId());
-        orders1.setStatus(Orders.TO_BE_CONFIRMED);
-        orders1.setPayStatus(Orders.PAID);
-        orders1.setCheckoutTime(LocalDateTime.now());
+//        Orders orders1 = new Orders();
+//        orders1.setId(ordersDB.getId());
+//        orders1.setStatus(Orders.TO_BE_CONFIRMED);
+//        orders1.setPayStatus(Orders.PAID);
+//        orders1.setCheckoutTime(LocalDateTime.now());
 
         orderMapper.update(orders);
     }
@@ -362,5 +363,21 @@ public class OrderServiceImpl implements OrderService {
         orderStatisticsVO.setDeliveryInProgress(deliveryInProgressCount);
 
         return orderStatisticsVO;
+    }
+
+    /**
+     * 接单
+     * @param ordersConfirmDTO
+     */
+    @Override
+    public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
+        //将订单改为接单状态
+        Orders orders = Orders.builder()
+                .id(ordersConfirmDTO.getId())
+                .status(Orders.CONFIRMED)
+                .build();
+
+        //更新数据库
+        orderMapper.update(orders);
     }
 }
