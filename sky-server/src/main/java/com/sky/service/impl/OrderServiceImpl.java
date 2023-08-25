@@ -168,7 +168,6 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
-
     /**
      * 查询历史订单
      *
@@ -412,6 +411,39 @@ public class OrderServiceImpl implements OrderService {
                 .cancelTime(LocalDateTime.now())
                 .build();
         //更新数据库
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 取消订单
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void cancel(OrdersCancelDTO ordersCancelDTO) {
+        //查询订单
+        Orders orderDB = orderMapper.getById(ordersCancelDTO.getId());
+        if(orderDB == null){
+            //订单不存在
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        //是否已支付
+        if(Orders.PAID.equals(orderDB.getPayStatus())){
+            //订单已支付，调用微信支付退款接口
+            //跳过退款
+//            weChatPayUtil.refund(
+//                    ordersDB.getNumber(),  //商户订单号
+//                    ordersDB.getNumber(),  //商户退款单号
+//                    new BigDecimal(0.01),  //退款金额
+//                    new BigDecimal(0.01)  //原订单金额
+//            );
+        }
+        //修改订单状态
+        Orders orders = Orders.builder()
+                .id(ordersCancelDTO.getId())
+                .status(Orders.CANCELLED)
+                .cancelReason(ordersCancelDTO.getCancelReason())
+                .cancelTime(LocalDateTime.now())
+                .build();
         orderMapper.update(orders);
 
     }
