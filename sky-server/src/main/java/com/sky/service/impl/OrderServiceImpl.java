@@ -447,4 +447,26 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
 
     }
+
+    /**
+     * 派送订单
+     *
+     * @param id
+     */
+    @Override
+    public void delivery(Long id) {
+        //查询订单
+        Orders orderDB = orderMapper.getById(id);
+        if (orderDB == null || !Orders.CONFIRMED.equals(orderDB.getStatus())) {
+            //非已结单状态
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        //将订单修改为派送中状态
+        Orders orders = Orders.builder()
+                .id(orderDB.getId())
+                .status(Orders.DELIVERY_IN_PROGRESS)
+                .build();
+        orderMapper.update(orders);
+
+    }
 }
