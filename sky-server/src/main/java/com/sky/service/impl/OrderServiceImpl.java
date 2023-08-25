@@ -416,18 +416,19 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 取消订单
+     *
      * @param ordersCancelDTO
      */
     @Override
     public void cancel(OrdersCancelDTO ordersCancelDTO) {
         //查询订单
         Orders orderDB = orderMapper.getById(ordersCancelDTO.getId());
-        if(orderDB == null){
+        if (orderDB == null) {
             //订单不存在
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
         //是否已支付
-        if(Orders.PAID.equals(orderDB.getPayStatus())){
+        if (Orders.PAID.equals(orderDB.getPayStatus())) {
             //订单已支付，调用微信支付退款接口
             //跳过退款
 //            weChatPayUtil.refund(
@@ -468,5 +469,26 @@ public class OrderServiceImpl implements OrderService {
                 .build();
         orderMapper.update(orders);
 
+    }
+
+    /**
+     * 完成订单
+     * @param id
+     */
+    @Override
+    public void complete(Long id) {
+        //只有状态为“派送中”的订单可以执行订单完成操作
+        //查询订单
+        Orders orderDB = orderMapper.getById(id);
+        if(orderDB == null || !Orders.DELIVERY_IN_PROGRESS.equals(orderDB.getStatus())){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        //完成订单其实就是将订单状态修改为“已完成”
+        Orders orders = Orders.builder()
+                .id(orderDB.getId())
+                .status(Orders.COMPLETED)
+                .deliveryTime(LocalDateTime.now())
+                .build();
+        orderMapper.update(orders);
     }
 }
