@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -18,6 +19,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -47,6 +51,8 @@ public class OrderServiceImpl implements OrderService {
     private WeChatPayUtil weChatPayUtil;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 用户下单
@@ -158,14 +164,18 @@ public class OrderServiceImpl implements OrderService {
                 .payStatus(Orders.PAID)
                 .checkoutTime(LocalDateTime.now())
                 .build();
-
-//        Orders orders1 = new Orders();
-//        orders1.setId(ordersDB.getId());
-//        orders1.setStatus(Orders.TO_BE_CONFIRMED);
-//        orders1.setPayStatus(Orders.PAID);
-//        orders1.setCheckoutTime(LocalDateTime.now());
-
         orderMapper.update(orders);
+
+        //通过webSocket向服务端后台推送信息 type orderId content
+        //封装推送信息
+        Map map = new HashMap();
+        map.put("type", 1);   //type:1 来单提醒     type:2 客户催单
+        map.put("orderId", ordersDB.getId());
+        map.put("content", "订单号：" + outTradeNo);
+        //转为Json字符串
+        String json = JSON.toJSONString(map);
+        //推送
+        webSocketServer.sendToAllClient(json);
     }
 
     /**
