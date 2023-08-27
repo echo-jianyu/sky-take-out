@@ -1,13 +1,11 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.OrderStatisticsVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -193,5 +192,31 @@ public class ReportServiceImpl implements ReportService {
         map.put("end", end);
         map.put("status", status);
         return  orderMapper.countByMap(map);
+    }
+
+    /**
+     * 统计指定时间区间内的销量排名前10
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public SalesTop10ReportVO getTop10(LocalDate begin, LocalDate end) {
+        //转换为LocalDateTime类型
+        LocalDateTime beginDateTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(end, LocalTime.MAX);
+        //查询时间区间内的top10商品
+        List<GoodsSalesDTO> salesTop = orderMapper.getSalesTop(beginDateTime, endDateTime);
+        //获得商品名称集合
+        List<String> salesTopNameList = salesTop.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
+        //获得商品数量集合
+        List<Integer> salesTopNumberList = salesTop.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+        //封装返回数据
+        SalesTop10ReportVO salesTop10ReportVO = SalesTop10ReportVO.builder()
+                .nameList(StringUtils.join(salesTopNameList, ","))
+                .numberList(StringUtils.join(salesTopNumberList, ","))
+                .build();
+
+        return salesTop10ReportVO;
     }
 }
